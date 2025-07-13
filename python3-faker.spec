@@ -5,29 +5,32 @@
 Summary:	Faker - Python package that generates fake data for you
 Summary(pl.UTF-8):	Faker - pakiet Pythona generujący fałszywe dane
 Name:		python3-faker
-Version:	37.1.0
+Version:	37.4.0
 Release:	1
 License:	MIT
 Group:		Libraries/Python
 #Source0Download: https://pypi.org/simple/Faker/
 Source0:	https://files.pythonhosted.org/packages/source/F/Faker/faker-%{version}.tar.gz
-# Source0-md5:	10698ac88368efa4d507fa69020b5a3e
+# Source0-md5:	ff33aa3b66c811abcb7dc56fb5510046
+Patch0:		faker-no-tzdata.patch
 URL:		https://pypi.org/project/Faker/
-BuildRequires:	python3-modules >= 1:3.5
+BuildRequires:	python3-modules >= 1:3.9
 BuildRequires:	python3-setuptools
 %if %{with tests}
-BuildRequires:	python3-dateutil >= 2.4
 BuildRequires:	python3-freezegun
-BuildRequires:	python3-pytest
-BuildRequires:	python3-random2
-BuildRequires:	python3-six >= 1.10
+BuildRequires:	python3-pillow
+BuildRequires:	python3-pytest >= 6.0.1
 BuildRequires:	python3-text-unidecode >= 1.3
-BuildRequires:	python3-ukpostcodeparser
-BuildRequires:	python3-validators
+BuildRequires:	python3-ukpostcodeparser >= 1.1.1
+BuildRequires:	python3-validators >= 0.13.0
+BuildRequires:	python3-xmltodict
+# optional
+#BuildRequires:	python3-tzdata
 %endif
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.714
-Requires:	python3-modules >= 1:3.5
+Requires:	python3-modules >= 1:3.9
+Requires:	tzdata-zoneinfo
 BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -45,12 +48,18 @@ z usługi produkcyjnej.
 
 %prep
 %setup -q -n faker-%{version}
+%patch -P0 -p1
+
+# force regeneration to drop tzdata dependency
+%{__rm} -r Faker.egg-info
 
 %build
 %py3_build
 
 %if %{with tests}
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 \
+PYTEST_PLUGINS=faker.contrib.pytest.plugin \
+PYTHONPATH=$(pwd) \
 %{__python3} -m pytest tests
 %endif
 

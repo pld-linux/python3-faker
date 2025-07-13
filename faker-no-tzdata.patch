@@ -1,0 +1,9 @@
+--- faker-37.4.0/setup.py.orig	2025-03-05 18:30:55.000000000 +0100
++++ faker-37.4.0/setup.py	2025-07-13 18:36:05.526857253 +0200
+@@ -67,6 +67,5 @@ setup(
+     },
+     platforms=["any"],
+     zip_safe=zip_safe,
+-    install_requires=["tzdata"],
+     python_requires=">=3.9",
+ )
